@@ -41,7 +41,7 @@ http://192.168.1.23:3000/
 HOST=0.0.0.0 PORT=3000 npm start
 ```
 
-如果要让外网客户访问，需要部署到云服务器、Render/Railway 等支持 Node 服务的平台，或使用 Cloudflare Tunnel/ngrok 这类隧道服务，并绑定正式域名。
+如果要让外网客户访问，需要部署到 Cloudflare Pages、云服务器、Render/Railway 等平台，或使用 Cloudflare Tunnel/ngrok 这类隧道服务，并绑定正式域名。
 
 ## 询盘数据
 
@@ -107,13 +107,58 @@ RATE_LIMIT_MAX=8
 
 优先推荐：
 
-- Render / Railway：适合先快速上线，自动读取 GitHub 仓库并运行 `npm start`。
+- Cloudflare Pages：适合先免费上线，静态页面速度快，并可用 Pages Functions 接收询盘。
+- Render / Railway：适合需要长期 Node 服务时使用，自动读取 GitHub 仓库并运行 `npm start`。
 - 云服务器 + Docker：适合后期更稳定运营，可自行配置 Nginx、HTTPS、日志和备份。
 - 国内大陆服务器：若绑定大陆域名并面向国内公开访问，通常需要先完成 ICP 备案。
 
+## Cloudflare Pages 免费上线
+
+项目已加入 Cloudflare Pages 所需文件：
+
+- `functions/api/inquiries.js`：线上询盘接口
+- `functions/healthz.js`：健康检查
+- `wrangler.toml`：Cloudflare Pages 配置
+- `_headers`：基础安全头与静态资源缓存
+- `_routes.json`：只让 `/api/*` 和 `/healthz` 调用 Functions，页面和图片保持静态访问
+
+操作步骤：
+
+1. 登录 Cloudflare。
+2. 进入 Workers & Pages。
+3. 选择 Create application。
+4. 选择 Pages，再选择 Connect to Git。
+5. 授权 GitHub，并选择仓库 `chenle030907-crypto/changhan-metal-door`。
+6. 构建设置填写：
+
+```text
+Framework preset: None
+Build command: 留空
+Build output directory: .
+```
+
+7. 添加环境变量：
+
+```text
+INQUIRY_NOTIFY_PROVIDER=wecom
+INQUIRY_WEBHOOK_URL=你的企业微信/飞书/CRM Webhook 地址
+```
+
+8. 点击 Deploy。
+
+部署成功后，会得到一个类似下面的临时网址：
+
+```text
+https://changhan-metal-door.pages.dev
+```
+
+确认首页、产品页、案例页、联系表单都正常后，再绑定正式域名。
+
+如果暂时没有配置 `INQUIRY_WEBHOOK_URL`，表单接口会返回失败，前端会自动生成邮件询盘草稿，客户信息不会静默丢失。
+
 ## Render 快速上线
 
-项目已加入 `render.yaml`，可以用 Blueprint 部署。
+Render 现在可作为备选方案。项目已加入 `render.yaml`，可以用 Blueprint 部署。
 
 操作步骤：
 

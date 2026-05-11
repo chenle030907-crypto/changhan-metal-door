@@ -24,27 +24,31 @@ http://localhost:3000/
 
 ## 推荐上线方式
 
-建议先用 Render 或 Railway 这类 Node 云平台部署，适合当前项目：不用买服务器，也不用自己配置 Nginx。
+建议先用 Cloudflare Pages 部署，适合当前项目：不用买服务器，静态页面速度快，并且可以通过 Pages Functions 接收询盘。
 
 基本流程：
 
 1. 把本项目上传到 GitHub。
-2. 在 Render / Railway 新建 Node Web Service，并选择这个 GitHub 仓库。
-3. 启动命令使用 `npm start`。
+2. 在 Cloudflare Pages 新建项目，并连接这个 GitHub 仓库。
+3. 构建设置选择：
+
+```text
+Framework preset: None
+Build command: 留空
+Build output directory: .
+```
+
 4. 设置环境变量：
 
 ```text
-HOST=0.0.0.0
-NODE_VERSION=20
-PERSIST_INQUIRIES=false
 INQUIRY_NOTIFY_PROVIDER=wecom
 INQUIRY_WEBHOOK_URL=你的企业微信/飞书/CRM Webhook 地址
 ```
 
-5. 部署成功后，平台会生成一个临时网址。
-6. 购买域名后，在平台里绑定自定义域名，再按平台提示添加 DNS 解析。
+5. 部署成功后，Cloudflare 会生成一个 `*.pages.dev` 临时网址。
+6. 购买域名后，在 Cloudflare Pages 里绑定自定义域名。
 
-项目已提供 `render.yaml`，在 Render 里可以直接按 Blueprint 方式识别部署配置。
+项目已提供 `functions/api/inquiries.js`，Cloudflare Pages 会自动把它作为 `/api/inquiries` 表单接口。
 
 ## 询盘接收
 
@@ -54,12 +58,11 @@ INQUIRY_WEBHOOK_URL=你的企业微信/飞书/CRM Webhook 地址
 data/inquiries.jsonl
 ```
 
-云平台上线时，建议使用 Webhook 接收询盘，例如企业微信、飞书、钉钉、Make/Zapier 或自建 CRM。
+Cloudflare Pages 上线时，建议使用 Webhook 接收询盘，例如企业微信、飞书、钉钉、Make/Zapier 或自建 CRM。
 
-原因是很多云平台的本地文件不是长期稳定存储，服务重启后可能丢失。线上建议设置：
+Cloudflare Pages 不会使用本地 `data/inquiries.jsonl` 存储客户信息，线上建议设置：
 
 ```text
-PERSIST_INQUIRIES=false
 INQUIRY_WEBHOOK_URL=你的 Webhook 地址
 ```
 
@@ -74,6 +77,10 @@ INQUIRY_WEBHOOK_URL=你的 Webhook 地址
 - 真实公司地址、备案号、资质信息
 - 真实项目案例图、工厂图和产品图
 - 企业微信、飞书或 CRM Webhook
+   
+## 备选部署
+
+项目也保留了 Node 版本的 `server.js`、`render.yaml` 和 `Dockerfile`。如果后期需要服务器长期存储询盘、接 CRM 数据库或做后台管理，可以再迁移到云服务器、Render、Railway 或 Docker 环境。
 
 ## 常用检查
 
