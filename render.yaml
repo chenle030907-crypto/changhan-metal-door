@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: changhan-metal-door
+    env: node
+    autoDeploy: true
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: HOST
+        value: 0.0.0.0
+      - key: INQUIRY_NOTIFY_PROVIDER
+        value: wecom
+      - key: PERSIST_INQUIRIES
+        value: "false"
+      - key: INQUIRY_WEBHOOK_URL
+        sync: false
